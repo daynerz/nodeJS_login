@@ -1,0 +1,5 @@
+express: application server
+ejs: templating language for diff views for login, register, etc.
+--save-dev: development only
+nodemon: restart server automatically every time changes are made
+dotenv: environment variables to be stored in .env file
