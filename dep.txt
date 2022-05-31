@@ -7,3 +7,4 @@ bcrypt: allow passwords to be hashed
 passport (passport-local): local vers allows for email and password login
 express-session: store and persist users in a session
 express-flash: display error messages
+method-override: override post method with delete for logout function

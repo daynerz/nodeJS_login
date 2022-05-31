@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt')
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
+const methodOverride = require('method-override')
 
 const initializePassport = require('./passportConfig')
 
@@ -17,32 +18,26 @@ initializePassport(
     id => users.find(user => user.id === id)
 )
 
-const users = []        // every time server reloads, users array would reset to empty array --> do not use this in production
+const users = []          // every time server reloads, users array would reset to empty array --> do not use this in production
 
 app.set('view-engine', 'ejs')
-
 app.use(express.urlencoded({ extended: false }))      // allow data in login/register form html tags to be used for req in post methods
 app.use(flash())
 app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
 }))
 app.use(passport.initialize())
 app.use(passport.session())
-
+app.use(methodOverride('_method'))
 
 app.get('/', checkAuthenticated, (req, res) => {
     res.render('index.ejs', { name: req.user.name })
 })
 
-app.get('/login', (req, res) => {
+app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('login.ejs')
-})
-
-
-app.get('/register', (req, res) => {
-    res.render('register.ejs')
 })
 
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
@@ -50,6 +45,10 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     failureRedirect: '/login',
     failureFlash: true
 }))
+
+app.get('/register', checkNotAuthenticated, (req, res) => {
+    res.render('register.ejs')
+})
 
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
@@ -66,22 +65,30 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     }
 })
 
+app.delete('/logout', (req, res) => {
+    req.logOut()
+    res.redirect('/login')
+})
+
 // redirect non-authenticated user to login page
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-      return next()
+        return next()
     }
+
     res.redirect('/login')
 }
 
 // redirect authenticated user to home page
+
 function checkNotAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-      return res.redirect('/')
+        return res.redirect('/')
     }
     next()
 }
 
 app.listen(3000)
+
 
 // req.body.____ ==> name='____' (html name tag)
