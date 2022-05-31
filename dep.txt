@@ -4,3 +4,6 @@ ejs: templating language for diff views for login, register, etc.
 nodemon: restart server automatically every time changes are made
 dotenv: environment variables to be stored in .env file
 bcrypt: allow passwords to be hashed
+passport (passport-local): local vers allows for email and password login
+express-session: store and persist users in a session
+express-flash: display error messages
