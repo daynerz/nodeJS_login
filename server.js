@@ -16,6 +16,10 @@ app.get('/register', (req, res) => {
     res.render('register.ejs')
 })
 
+app.post('/login', (req, res) => {
+
+})
+
 app.post('/register', (req, res) => {
 
 })
