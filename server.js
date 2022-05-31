@@ -11,8 +11,10 @@ const session = require('express-session')
 
 const initializePassport = require('./passportConfig')
 
-initializePassport(passport, email => { 
-    return users.find(user => user.email == email) }
+initializePassport(
+    passport,
+    email => users.find(user => user.email === email),
+    id => users.find(user => user.id === id)
 )
 
 const users = []        // every time server reloads, users array would reset to empty array --> do not use this in production
@@ -30,7 +32,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 
-app.get('/', (req, res) => {
+app.get('/', checkAuthenticated, (req, res) => {
     res.render('index.ejs', { name: req.user.name })
 })
 
@@ -63,6 +65,14 @@ app.post('/register', async (req, res) => {
         res.redirect('/register')
     }
 })
+
+function checkAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+      return next()
+    }
+  
+    res.redirect('/login')
+}
 
 app.listen(3000)
 
